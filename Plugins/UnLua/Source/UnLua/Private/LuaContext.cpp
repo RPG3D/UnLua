@@ -483,7 +483,7 @@ bool FLuaContext::TryToBindLua(UObjectBaseUtility *Object)
 /**
  * Callback for FWorldDelegates::OnWorldTickStart
  */
-#if ENGINE_MINOR_VERSION > 23
+#if UNLUA_UE_VERSION > 423
 void FLuaContext::OnWorldTickStart(UWorld *World, ELevelTick TickType, float DeltaTime)
 #else
 void FLuaContext::OnWorldTickStart(ELevelTick TickType, float DeltaTime)
@@ -521,7 +521,7 @@ void FLuaContext::OnWorldCleanup(UWorld *World, bool bSessionEnded, bool bCleanu
 
     World->RemoveOnActorSpawnedHandler(OnActorSpawnedHandle);
 
-#if ENGINE_MINOR_VERSION > 23
+#if UNLUA_UE_VERSION > 423
     Cleanup(IsEngineExitRequested(), World);                    // clean up
 #else
     Cleanup(GIsRequestingExit, World);                          // clean up
@@ -861,11 +861,11 @@ void FLuaContext::NotifyUObjectDeleted(const UObjectBase *InObject, int32 Index)
 /**
  * Callback when a GUObjectArray is deleted
  */
-#if ENGINE_MINOR_VERSION > 22
+#if UNLUA_UE_VERSION > 422
 void FLuaContext::OnUObjectArrayShutdown()
 {   
     bool bEngineExit = false;
-#if ENGINE_MINOR_VERSION > 23
+#if UNLUA_UE_VERSION > 423
     bEngineExit = IsEngineExitRequested();
 #else
     bEngineExit = GIsRequestingExit;
@@ -948,7 +948,7 @@ FLuaContext::~FLuaContext()
         L = NULL;
     }
 
-#if ENGINE_MINOR_VERSION <= 22
+#if UNLUA_UE_VERSION <= 422
     // when exiting, remove listeners for creating/deleting UObject
     GUObjectArray.RemoveUObjectCreateListener(GLuaCxt);
     GUObjectArray.RemoveUObjectDeleteListener(GLuaCxt);

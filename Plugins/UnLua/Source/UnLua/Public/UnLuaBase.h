@@ -16,6 +16,7 @@
 
 #include "CoreUObject.h"
 #include "Runtime/Launch/Resources/Version.h"
+#include "../Private/UnLuaCompatibility.h"
 
 #ifndef AUTO_UNLUA_STARTUP
 #define AUTO_UNLUA_STARTUP 0
@@ -31,7 +32,7 @@
 
 UNLUA_API DECLARE_LOG_CATEGORY_EXTERN(LogUnLua, Log, All);
 
-#if ENGINE_MINOR_VERSION < 25
+#if UNLUA_UE_VERSION < 25
 typedef UProperty FProperty;
 #endif
 

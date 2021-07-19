@@ -168,7 +168,7 @@ void GetOverridableFunctions(UClass *Class, TMap<FName, UFunction*> &Functions)
 /**
  * Only used to get offset of 'Offset_Internal'
  */
-#if ENGINE_MINOR_VERSION < 25
+#if UNLUA_UE_VERSION < 425
 struct FFakeProperty : public UField
 #else
 struct FFakeProperty : public FField
