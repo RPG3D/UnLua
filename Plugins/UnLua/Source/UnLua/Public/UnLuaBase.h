@@ -32,7 +32,7 @@
 
 UNLUA_API DECLARE_LOG_CATEGORY_EXTERN(LogUnLua, Log, All);
 
-#if UNLUA_UE_VERSION < 25
+#if UNLUA_UE_VERSION < 425
 typedef UProperty FProperty;
 #endif
 
