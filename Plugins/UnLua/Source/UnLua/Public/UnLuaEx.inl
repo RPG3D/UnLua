@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 
 #include "UnLuaDebugBase.h"
+#include "type_traits"
 
 namespace UnLua
 {
@@ -951,7 +952,7 @@ namespace UnLua
     TExportedClass<bIsReflected, ClassType, CtorArgType...>::TExportedClass(const char *InName, const char *InSuperClassName)
         : FExportedClassBase(InName, InSuperClassName)
     {
-        AddDefaultFunctions(std::conditional<bIsReflected, FTrue, FFalse>::type());
+        AddDefaultFunctions(typename std::conditional<bIsReflected, FTrue, FFalse>::type());
     }
 
     template <bool bIsReflected, typename ClassType, typename... CtorArgType>
