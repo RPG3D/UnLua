@@ -140,8 +140,8 @@ static void check_match (LexState *ls, int what, int who, int where) {
 }
 
 
-static TString *str_checkname (LexState *ls) {
-  TString *ts;
+static TStringUnLua *str_checkname (LexState *ls) {
+  TStringUnLua *ts;
   check(ls, TK_NAME);
   ts = ls->t.seminfo.ts;
   luaX_next(ls);
@@ -156,7 +156,7 @@ static void init_exp (expdesc *e, expkind k, int i) {
 }
 
 
-static void codestring (expdesc *e, TString *s) {
+static void codestring (expdesc *e, TStringUnLua *s) {
   e->f = e->t = NO_JUMP;
   e->k = VKSTR;
   e->u.strval = s;
@@ -172,7 +172,7 @@ static void codename (LexState *ls, expdesc *e) {
 ** Register a new local variable in the active 'Proto' (for debug
 ** information).
 */
-static int registerlocalvar (LexState *ls, FuncState *fs, TString *varname) {
+static int registerlocalvar (LexState *ls, FuncState *fs, TStringUnLua *varname) {
   Proto *f = fs->f;
   int oldsize = f->sizelocvars;
   luaM_growvector(ls->L, f->locvars, fs->ndebugvars, f->sizelocvars,
@@ -190,7 +190,7 @@ static int registerlocalvar (LexState *ls, FuncState *fs, TString *varname) {
 ** Create a new local variable with the given 'name'. Return its index
 ** in the function.
 */
-static int new_localvar (LexState *ls, TString *name) {
+static int new_localvar (LexState *ls, TStringUnLua *name) {
   lua_State *L = ls->L;
   FuncState *fs = ls->fs;
   Dyndata *dyd = ls->dyd;
@@ -276,7 +276,7 @@ static void init_var (FuncState *fs, expdesc *e, int vidx) {
 */
 static void check_readonly (LexState *ls, expdesc *e) {
   FuncState *fs = ls->fs;
-  TString *varname = NULL;  /* to be set if variable is const */
+  TStringUnLua *varname = NULL;  /* to be set if variable is const */
   switch (e->k) {
     case VCONST: {
       varname = ls->dyd->actvar.arr[e->u.info].vd.name;
@@ -339,7 +339,7 @@ static void removevars (FuncState *fs, int tolevel) {
 ** Search the upvalues of the function 'fs' for one
 ** with the given 'name'.
 */
-static int searchupvalue (FuncState *fs, TString *name) {
+static int searchupvalue (FuncState *fs, TStringUnLua *name) {
   int i;
   Upvaldesc *up = fs->f->upvalues;
   for (i = 0; i < fs->nups; i++) {
@@ -361,7 +361,7 @@ static Upvaldesc *allocupvalue (FuncState *fs) {
 }
 
 
-static int newupvalue (FuncState *fs, TString *name, expdesc *v) {
+static int newupvalue (FuncState *fs, TStringUnLua *name, expdesc *v) {
   Upvaldesc *up = allocupvalue(fs);
   FuncState *prev = fs->prev;
   if (v->k == VLOCAL) {
@@ -387,7 +387,7 @@ static int newupvalue (FuncState *fs, TString *name, expdesc *v) {
 ** function 'fs'. If found, initialize 'var' with it and return
 ** its expression kind; otherwise return -1.
 */
-static int searchvar (FuncState *fs, TString *n, expdesc *var) {
+static int searchvar (FuncState *fs, TStringUnLua *n, expdesc *var) {
   int i;
   for (i = cast_int(fs->nactvar) - 1; i >= 0; i--) {
     Vardesc *vd = getlocalvardesc(fs, i);
@@ -432,7 +432,7 @@ static void marktobeclosed (FuncState *fs) {
 ** this upvalue into all intermediate functions. If it is a global, set
 ** 'var' as 'void' as a flag.
 */
-static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
+static void singlevaraux (FuncState *fs, TStringUnLua *n, expdesc *var, int base) {
   if (fs == NULL)  /* no more levels? */
     init_exp(var, VVOID, 0);  /* default is global */
   else {
@@ -461,7 +461,7 @@ static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
 ** too.
 */
 static void singlevar (LexState *ls, expdesc *var) {
-  TString *varname = str_checkname(ls);
+  TStringUnLua *varname = str_checkname(ls);
   FuncState *fs = ls->fs;
   singlevaraux(fs, varname, var, 1);
   if (var->k == VVOID) {  /* global name? */
@@ -540,7 +540,7 @@ static void solvegoto (LexState *ls, int g, Labeldesc *label) {
 /*
 ** Search for an active label with the given name.
 */
-static Labeldesc *findlabel (LexState *ls, TString *name) {
+static Labeldesc *findlabel (LexState *ls, TStringUnLua *name) {
   int i;
   Dyndata *dyd = ls->dyd;
   /* check labels in current function for a match */
@@ -556,7 +556,7 @@ static Labeldesc *findlabel (LexState *ls, TString *name) {
 /*
 ** Adds a new label/goto in the corresponding list.
 */
-static int newlabelentry (LexState *ls, Labellist *l, TString *name,
+static int newlabelentry (LexState *ls, Labellist *l, TStringUnLua *name,
                           int line, int pc) {
   int n = l->n;
   luaM_growvector(ls->L, l->arr, n, l->size,
@@ -571,7 +571,7 @@ static int newlabelentry (LexState *ls, Labellist *l, TString *name,
 }
 
 
-static int newgotoentry (LexState *ls, TString *name, int line, int pc) {
+static int newgotoentry (LexState *ls, TStringUnLua *name, int line, int pc) {
   return newlabelentry(ls, &ls->dyd->gt, name, line, pc);
 }
 
@@ -604,7 +604,7 @@ static int solvegotos (LexState *ls, Labeldesc *lb) {
 ** a close instruction if necessary.
 ** Returns true iff it added a close instruction.
 */
-static int createlabel (LexState *ls, TString *name, int line,
+static int createlabel (LexState *ls, TStringUnLua *name, int line,
                         int last) {
   FuncState *fs = ls->fs;
   Labellist *ll = &ls->dyd->label;
@@ -1415,7 +1415,7 @@ static int cond (LexState *ls) {
 static void gotostat (LexState *ls) {
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  TString *name = str_checkname(ls);  /* label's name */
+  TStringUnLua *name = str_checkname(ls);  /* label's name */
   Labeldesc *lb = findlabel(ls, name);
   if (lb == NULL)  /* no label? */
     /* forward jump; will be resolved when the label is declared */
@@ -1444,7 +1444,7 @@ static void breakstat (LexState *ls) {
 /*
 ** Check whether there is already a label with the given 'name'.
 */
-static void checkrepeated (LexState *ls, TString *name) {
+static void checkrepeated (LexState *ls, TStringUnLua *name) {
   Labeldesc *lb = findlabel(ls, name);
   if (l_unlikely(lb != NULL)) {  /* already defined? */
     const char *msg = "label '%s' already defined on line %d";
@@ -1454,7 +1454,7 @@ static void checkrepeated (LexState *ls, TString *name) {
 }
 
 
-static void labelstat (LexState *ls, TString *name, int line) {
+static void labelstat (LexState *ls, TStringUnLua *name, int line) {
   /* label -> '::' NAME '::' */
   checknext(ls, TK_DBCOLON);  /* skip double colon */
   while (ls->t.token == ';' || ls->t.token == TK_DBCOLON)
@@ -1565,7 +1565,7 @@ static void forbody (LexState *ls, int base, int line, int nvars, int isgen) {
 }
 
 
-static void fornum (LexState *ls, TString *varname, int line) {
+static void fornum (LexState *ls, TStringUnLua *varname, int line) {
   /* fornum -> NAME = exp,exp[,exp] forbody */
   FuncState *fs = ls->fs;
   int base = fs->freereg;
@@ -1588,7 +1588,7 @@ static void fornum (LexState *ls, TString *varname, int line) {
 }
 
 
-static void forlist (LexState *ls, TString *indexname) {
+static void forlist (LexState *ls, TStringUnLua *indexname) {
   /* forlist -> NAME {,NAME} IN explist forbody */
   FuncState *fs = ls->fs;
   expdesc e;
@@ -1619,7 +1619,7 @@ static void forlist (LexState *ls, TString *indexname) {
 static void forstat (LexState *ls, int line) {
   /* forstat -> FOR (fornum | forlist) END */
   FuncState *fs = ls->fs;
-  TString *varname;
+  TStringUnLua *varname;
   BlockCnt bl;
   enterblock(fs, &bl, 1);  /* scope for loop and control variables */
   luaX_next(ls);  /* skip 'for' */

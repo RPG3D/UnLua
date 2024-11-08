@@ -372,7 +372,7 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
 ** and it uses 'strcoll' (to respect locales) for each segments
 ** of the strings.
 */
-static int l_strcmp (const TString *ls, const TString *rs) {
+static int l_strcmp (const TStringUnLua *ls, const TStringUnLua *rs) {
   const char *l = getstr(ls);
   size_t ll = tsslen(ls);
   const char *r = getstr(rs);
@@ -652,7 +652,7 @@ void luaV_concat (lua_State *L, int total) {
     else {
       /* at least two non-empty string values; get as many as possible */
       size_t tl = vslen(s2v(top - 1));
-      TString *ts;
+      TStringUnLua *ts;
       /* collect total length and number of strings */
       for (n = 1; n < total && tostring(L, s2v(top - n - 1)); n++) {
         size_t l = vslen(s2v(top - n - 1));
@@ -1235,7 +1235,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         TValue *upval = cl->upvals[GETARG_B(i)]->v;
         TValue *rc = KC(i);
-        TString *key = tsvalue(rc);  /* key must be a string */
+        TStringUnLua *key = tsvalue(rc);  /* key must be a string */
         if (luaV_fastget(L, upval, key, slot, luaH_getshortstr)) {
           setobj2s(L, ra, slot);
         }
@@ -1275,7 +1275,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         TValue *rb = vRB(i);
         TValue *rc = KC(i);
-        TString *key = tsvalue(rc);  /* key must be a string */
+        TStringUnLua *key = tsvalue(rc);  /* key must be a string */
         if (luaV_fastget(L, rb, key, slot, luaH_getshortstr)) {
           setobj2s(L, ra, slot);
         }
@@ -1288,7 +1288,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         TValue *upval = cl->upvals[GETARG_A(i)]->v;
         TValue *rb = KB(i);
         TValue *rc = RKC(i);
-        TString *key = tsvalue(rb);  /* key must be a string */
+        TStringUnLua *key = tsvalue(rb);  /* key must be a string */
         if (luaV_fastget(L, upval, key, slot, luaH_getshortstr)) {
           luaV_finishfastset(L, upval, slot, rc);
         }
@@ -1328,7 +1328,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         TValue *rb = KB(i);
         TValue *rc = RKC(i);
-        TString *key = tsvalue(rb);  /* key must be a string */
+        TStringUnLua *key = tsvalue(rb);  /* key must be a string */
         if (luaV_fastget(L, s2v(ra), key, slot, luaH_getshortstr)) {
           luaV_finishfastset(L, s2v(ra), slot, rc);
         }
@@ -1358,7 +1358,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         TValue *rb = vRB(i);
         TValue *rc = RKC(i);
-        TString *key = tsvalue(rc);  /* key must be a string */
+        TStringUnLua *key = tsvalue(rc);  /* key must be a string */
         setobj2s(L, ra + 1, rb);
         if (luaV_fastget(L, rb, key, slot, luaH_getstr)) {
           setobj2s(L, ra, slot);
