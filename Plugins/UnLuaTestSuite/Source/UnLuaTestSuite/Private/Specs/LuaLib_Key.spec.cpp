@@ -36,7 +36,7 @@ void FUnLuaLibEKeySpec::Define()
         It(TEXT("F1"), EAsyncExecution::TaskGraphMainThread, [this]()
         {
             UnLua::RunChunk(L, "return UE.EKeys.F1.KeyName");
-            TEST_EQUAL(lua_tostring(L, -1), "F1");
+            TEST_EQUAL(UTF8_TO_TCHAR(lua_tostring(L, -1)), TEXT("F1"));
         });
     });
 

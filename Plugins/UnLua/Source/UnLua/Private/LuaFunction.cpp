@@ -141,7 +141,7 @@ void ULuaFunction::Override(UFunction* Function, UClass* Class, bool bAddNew)
     check(Function && Class && !From.IsValid());
 
 #if WITH_METADATA
-    UMetaData::CopyMetadata(Function, this);
+    FMetaData::CopyMetadata(Function, this);
 #endif
 
     bActivated = false;
